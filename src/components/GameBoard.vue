@@ -1,13 +1,16 @@
 <template>
   <div>
-    <h2>Memory Game</h2>
+    <h2>Memory {{ size }} x {{ size }}</h2>
     <p>Essais : {{ tries }}</p>
 
-    <div class="grid" :style="{ gridTemplateColumns: `repeat(${gridSize}, 100px)` }">
-      <div 
-        v-for="(card, index) in cards" 
-        :key="index" 
-        class="card" 
+    <div
+      class="grid"
+      :style="{ gridTemplateColumns: `repeat(${size}, 100px)` }"
+    >
+      <div
+        v-for="(card, index) in cards"
+        :key="index"
+        class="card"
         @click="flipCard(index)"
       >
         <span v-if="card.flipped || card.matched">{{ card.emoji }}</span>
@@ -15,36 +18,54 @@
       </div>
     </div>
 
-    <p v-if="matchedPairs === totalPairs">🎉 Vous avez gagné en {{ tries }} essais !</p>
+    <p v-if="matchedPairs === totalPairs">
+      🎉 Vous avez gagné en {{ tries }} essais !
+    </p>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-// Paramètres
-const gridSize = 4 // change pour 4x4, 5x5, 6x6
-const emojis = ['🍎','🍌','🍒','🍇','🍋','🍊','🥝','🍉'] // jusqu'à 8 pour 4x4
+/* ===== PROPS ===== */
+const props = defineProps({
+  size: {
+    type: Number,
+    required: true
+  }
+})
 
-// Création des cartes
-const totalPairs = (gridSize * gridSize) / 2
+/* ===== EMIT ===== */
+const emit = defineEmits(['game-finished'])
+
+/* ===== DONNÉES ===== */
+const emojis = [
+  '🍎','🍌','🍒','🍇','🍋','🍊','🥝','🍉',
+  '🍍','🥥','🍓','🍑','🍐','🥭','🍏','🍈','🍅','🥑'
+]
+
 const cards = ref([])
-
-// État du jeu
 const flippedCards = ref([])
 const tries = ref(0)
 const matchedPairs = ref(0)
 
+/* ===== CALCULS ===== */
+const totalPairs = computed(() => (props.size * props.size) / 2)
+
+/* ===== FONCTIONS ===== */
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5)
 }
 
 function initGame() {
-  // Choisir emojis selon le nombre de paires
-  const selectedEmojis = emojis.slice(0, totalPairs)
-  const cardList = shuffle([...selectedEmojis, ...selectedEmojis])
-    .map(e => ({ emoji: e, flipped: false, matched: false }))
-  cards.value = cardList
+  const selectedEmojis = emojis.slice(0, totalPairs.value)
+  const deck = shuffle([...selectedEmojis, ...selectedEmojis]).map(e => ({
+    emoji: e,
+    flipped: false,
+    matched: false
+  }))
+
+  cards.value = deck
   flippedCards.value = []
   tries.value = 0
   matchedPairs.value = 0
@@ -59,26 +80,33 @@ function flipCard(index) {
 
   if (flippedCards.value.length === 2) {
     tries.value++
-    setTimeout(checkMatch, 500)
+    setTimeout(checkMatch, 600)
   }
 }
 
 function checkMatch() {
   const [first, second] = flippedCards.value
+
   if (first.emoji === second.emoji) {
     first.matched = true
     second.matched = true
     matchedPairs.value++
+
+    if (matchedPairs.value === totalPairs.value) {
+      emit('game-finished', {
+        tries: tries.value
+      })
+    }
   } else {
     first.flipped = false
     second.flipped = false
   }
+
   flippedCards.value = []
 }
 
-onMounted(() => {
-  initGame()
-})
+/* ===== LIFECYCLE ===== */
+onMounted(initGame)
 </script>
 
 <style scoped>
