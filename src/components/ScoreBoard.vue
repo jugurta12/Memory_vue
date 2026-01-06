@@ -1,6 +1,6 @@
 <template>
   <div class="scores">
-    <h2>Historique des parties</h2>
+    <h2> Historique des parties</h2> 
 
     <div class="actions">
       <select v-model="sortKey">
@@ -9,11 +9,10 @@
         <option value="time">Temps</option>
         <option value="tries">Essais</option>
       </select>
-
-      <button @click="resetScores">Tout supprimer</button>
+      <button @click="resetScoresConfirm">Tout supprimer</button>
     </div>
 
-    <table v-if="sortedScores.length">
+    <table v-if="scores.length">
       <thead>
         <tr>
           <th>Pseudo</th>
@@ -23,29 +22,18 @@
           <th>Actions</th>
         </tr>
       </thead>
-
       <tbody>
-        <tr v-for="(score, index) in sortedScores" :key="index">
+        <tr v-for="(score, index) in sortedScores" :key="score.id">
           <td>
-            <input
-              v-if="editingIndex === index"
-              v-model="editedPseudo"
-            />
+            <input v-if="editingIndex === index" v-model="editedPseudo" />
             <span v-else>{{ score.pseudo }}</span>
           </td>
-
           <td>{{ score.size }} x {{ score.size }}</td>
           <td>{{ score.time }}</td>
           <td>{{ score.tries }}</td>
-
           <td>
-            <button v-if="editingIndex !== index" @click="edit(index)">
-              ✏️
-            </button>
-            <button v-else @click="save(index)">
-              💾
-            </button>
-
+            <button v-if="editingIndex !== index" @click="edit(index)">✏️</button>
+            <button v-else @click="save(index)">💾</button>
             <button @click="remove(index)">🗑️</button>
           </td>
         </tr>
@@ -59,14 +47,18 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-const scores = ref(JSON.parse(localStorage.getItem('scores')) || [])
+// 🔑 clé unique pour le stockage local
+const STORAGE_KEY = 'memory-scores'
+
+const scores = ref([])
 const sortKey = ref('pseudo')
 
 const editingIndex = ref(null)
 const editedPseudo = ref('')
 
+// Trier les scores
 const sortedScores = computed(() => {
   return [...scores.value].sort((a, b) => {
     if (a[sortKey.value] > b[sortKey.value]) return 1
@@ -75,10 +67,17 @@ const sortedScores = computed(() => {
   })
 })
 
-function saveToStorage() {
-  localStorage.setItem('scores', JSON.stringify(scores.value))
+// Charger les scores depuis le localStorage
+function loadScores() {
+  scores.value = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
 }
 
+// Sauvegarder dans le localStorage
+function saveToStorage() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores.value))
+}
+
+// Éditer pseudo
 function edit(index) {
   editingIndex.value = index
   editedPseudo.value = scores.value[index].pseudo
@@ -90,23 +89,37 @@ function save(index) {
   saveToStorage()
 }
 
+// Supprimer un score
 function remove(index) {
   scores.value.splice(index, 1)
   saveToStorage()
 }
 
-function resetScores() {
-  if (confirm("Supprimer toutes les parties ?")) {
+// Supprimer tous les scores
+function resetScoresConfirm() {
+  if (confirm('Supprimer toutes les parties ?')) {
     scores.value = []
-    saveToStorage()
+    localStorage.removeItem(STORAGE_KEY)
   }
 }
+
+onMounted(() => {
+  loadScores()
+})
 </script>
 
 <style scoped>
 .scores {
   max-width: 800px;
   margin: auto;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 table {
@@ -119,12 +132,6 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
-}
-
-.actions {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 button {

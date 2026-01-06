@@ -1,21 +1,35 @@
 <template>
-  <div>
-    <h2>Timer</h2>
-    <p>Temps : {{ time }} s</p>
-  </div>
+  <p>Temps : {{ time }} s</p>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineExpose } from 'vue'
 
 const time = ref(0)
-let timerInterval = null
+let interval = null
 
-onMounted(() => {
-  timerInterval = setInterval(() => time.value++, 1000)
+function start() {
+  interval = setInterval(() => {
+    time.value++
+  }, 1000)
+}
+
+function stop() {
+  clearInterval(interval)
+}
+
+function reset() {
+  stop()
+  time.value = 0
+  start()
+}
+
+defineExpose({
+  stop,
+  reset,
+  time
 })
 
-onUnmounted(() => {
-  clearInterval(timerInterval)
-})
+onMounted(start)
+onUnmounted(stop)
 </script>

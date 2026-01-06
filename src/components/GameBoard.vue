@@ -22,12 +22,14 @@
       🎉 Vous avez gagné en {{ tries }} essais !
     </p>
   </div>
+  <button @click="restartGame">🔁 Recommencer</button>
 </template>
+
+
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-/* ===== PROPS ===== */
 const props = defineProps({
   size: {
     type: Number,
@@ -35,10 +37,13 @@ const props = defineProps({
   }
 })
 
-/* ===== EMIT ===== */
 const emit = defineEmits(['game-finished'])
 
-/* ===== DONNÉES ===== */
+function restartGame() {
+  initGame()
+  emit('restart')
+}
+
 const emojis = [
   '🍎','🍌','🍒','🍇','🍋','🍊','🥝','🍉',
   '🍍','🥥','🍓','🍑','🍐','🥭','🍏','🍈','🍅','🥑'
@@ -49,10 +54,8 @@ const flippedCards = ref([])
 const tries = ref(0)
 const matchedPairs = ref(0)
 
-/* ===== CALCULS ===== */
 const totalPairs = computed(() => (props.size * props.size) / 2)
 
-/* ===== FONCTIONS ===== */
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5)
 }
