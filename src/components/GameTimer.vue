@@ -1,5 +1,7 @@
 <template>
+  <div class="time">
   <p>Temps : {{ time }} s</p>
+  </div>
 </template>
 
 <script setup>
@@ -33,3 +35,16 @@ defineExpose({
 onMounted(start)
 onUnmounted(stop)
 </script>
+
+<style scoped>
+
+.time{
+  font-size: 30px;
+  position: relative;
+  top: -75px;
+  left: 1300px;
+  width: 100px;
+  text-align: center;
+}
+
+</style>

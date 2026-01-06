@@ -1,10 +1,11 @@
 <template>
   <div>
     <div class="top-actions">
-      <button @click="quit">🚪 Quitter</button>
+      <button @click="quit">Quitter</button>
     </div>
 
     <GameTimer ref="timer" />
+
     <GameBoard
       :size="size"
       @game-finished="saveGame"
@@ -39,11 +40,19 @@ function quit() {
 function saveGame(data) {
   timer.value.stop()
 
-  const pseudo = prompt("Votre pseudo ?")
-  if (!pseudo) return
+  let pseudo = ''
+
+  while (!pseudo || !pseudo.trim()) {
+    pseudo = prompt('Entrez un pseudo valide')
+
+    if (pseudo === null) {
+      alert('Le pseudo est obligatoire')
+      pseudo = ''
+    }
+  }
 
   saveScore({
-    pseudo,
+    pseudo: pseudo.trim(),
     size,
     tries: data.tries,
     time: timer.value.time
@@ -54,7 +63,9 @@ function saveGame(data) {
 <style scoped>
 .top-actions {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+  position: relative;
+  margin-left: 20px;
+  margin-top: 20px;
+  z-index: 3;
 }
 </style>

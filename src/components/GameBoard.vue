@@ -1,7 +1,12 @@
 <template>
   <div>
-    <h2>Memory {{ size }} x {{ size }}</h2>
-    <p>Essais : {{ tries }}</p>
+    <div class="title2">
+      <h2>Memory {{ size }} x {{ size }}</h2>
+    </div>
+
+    <div class="Essais">
+      <p>Essais : {{ tries }}</p>
+    </div>
 
     <div
       class="grid"
@@ -18,43 +23,65 @@
       </div>
     </div>
 
-    <p v-if="matchedPairs === totalPairs">
-      🎉 Vous avez gagné en {{ tries }} essais !
-    </p>
+    <div class="bravo" v-if="gameWon">
+      Bravo, vous avez gagné en {{ tries }} essais !
+    </div>
+
+    <div class="restart">
+      <button @click="restartGame">Recommencer</button>
+    </div>
   </div>
-  <button @click="restartGame">🔁 Recommencer</button>
+
+  <div class="fin"></div>
 </template>
 
-
-
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
-  size: {
-    type: Number,
-    required: true
-  }
+  size: { type: Number, required: true }
 })
 
-const emit = defineEmits(['game-finished'])
+const emit = defineEmits(['game-finished', 'restart'])
 
-function restartGame() {
-  initGame()
-  emit('restart')
+// TIMER 
+const time = ref(0)
+let timerInterval = null
+
+function startTimer() {
+  stopTimer()
+  time.value = 0
+  timerInterval = setInterval(() => time.value++, 1000)
 }
 
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
+}
+
+// CARTES
 const emojis = [
   '🍎','🍌','🍒','🍇','🍋','🍊','🥝','🍉',
   '🍍','🥥','🍓','🍑','🍐','🥭','🍏','🍈','🍅','🥑'
 ]
 
+// JEU 
 const cards = ref([])
 const flippedCards = ref([])
 const tries = ref(0)
 const matchedPairs = ref(0)
+const hasFinished = ref(false)
 
-const totalPairs = computed(() => (props.size * props.size) / 2)
+// total de paires (grilles impaires OK)
+const totalPairs = computed(() =>
+  Math.floor((props.size * props.size) / 2)
+)
+
+const gameWon = computed(() =>
+  matchedPairs.value === totalPairs.value
+)
 
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5)
@@ -72,11 +99,18 @@ function initGame() {
   flippedCards.value = []
   tries.value = 0
   matchedPairs.value = 0
+  hasFinished.value = false
+  startTimer()
 }
 
 function flipCard(index) {
   const card = cards.value[index]
-  if (card.flipped || card.matched || flippedCards.value.length === 2) return
+  if (
+    card.flipped ||
+    card.matched ||
+    flippedCards.value.length === 2 ||
+    gameWon.value
+  ) return
 
   card.flipped = true
   flippedCards.value.push(card)
@@ -89,35 +123,86 @@ function flipCard(index) {
 
 function checkMatch() {
   const [first, second] = flippedCards.value
+  if (!first || !second) return
 
   if (first.emoji === second.emoji) {
     first.matched = true
     second.matched = true
     matchedPairs.value++
-
-    if (matchedPairs.value === totalPairs.value) {
-      emit('game-finished', {
-        tries: tries.value
-      })
-    }
   } else {
     first.flipped = false
     second.flipped = false
   }
 
   flippedCards.value = []
+
+  // FIN DE PARTIE
+  if (gameWon.value && !hasFinished.value) {
+    hasFinished.value = true
+    stopTimer()
+
+      emit('game-finished', {
+        tries: tries.value,
+        time: time.value
+})
+  }
+
 }
 
-/* ===== LIFECYCLE ===== */
+function restartGame() {
+  stopTimer()
+  initGame()
+  emit('restart')
+}
+
 onMounted(initGame)
+onUnmounted(stopTimer)
 </script>
 
 <style scoped>
+
 .grid {
   display: grid;
   gap: 10px;
   margin-top: 20px;
+  justify-content: center;
+  margin-top: -300px;
 }
+
+.Essais{
+  font-size: 30px;
+}
+
+.title2{
+  position: relative;
+  top: -250px;
+  font-size: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.Essais{
+  position: relative;
+  top: -300px;
+  margin-left: 20px;
+}
+
+.restart{
+  position: relative;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.bravo{
+  display: flex;
+  justify-content: center;
+  z-index: -1;
+  font-size: large;
+  color: aquamarine;
+}
+
 .card {
   width: 100px;
   height: 100px;
@@ -132,5 +217,9 @@ onMounted(initGame)
 }
 .card:hover {
   background-color: #e0e0e0;
+}
+
+.fin{
+  height: 50px;
 }
 </style>

@@ -1,0 +1,26 @@
+html, body {
+  background-color: #8a7d7d;  
+  margin: 0;
+  padding: 0;
+  color: black;
+}
+
+button{
+    color: black;
+    background-color: aliceblue;
+    font-size: 40px;
+}
+
+a{
+    text-decoration: none;
+    color: black;
+    background-color: aliceblue;
+    border-radius: 5px;
+    transition: 0.5s;
+}
+
+a:hover{
+    color: rgb(54, 37, 37);
+    background-color: rgb(226, 226, 226);
+    border-radius: 5px;
+}

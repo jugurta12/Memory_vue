@@ -32,9 +32,9 @@
           <td>{{ score.time }}</td>
           <td>{{ score.tries }}</td>
           <td>
-            <button v-if="editingIndex !== index" @click="edit(index)">✏️</button>
-            <button v-else @click="save(index)">💾</button>
-            <button @click="remove(index)">🗑️</button>
+            <button v-if="editingIndex !== index" @click="edit(index)">edit</button>
+            <button v-else @click="save(index)">save</button>
+            <button @click="remove(index)">delete</button>
           </td>
         </tr>
       </tbody>
