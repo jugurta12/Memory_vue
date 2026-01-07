@@ -171,6 +171,7 @@ onUnmounted(stopTimer)
 
 .Essais{
   font-size: 30px;
+  color: aliceblue;
 }
 
 .title2{
@@ -179,6 +180,7 @@ onUnmounted(stopTimer)
   font-size: 50px;
   display: flex;
   justify-content: center;
+  color: aliceblue;
 }
 
 .Essais{

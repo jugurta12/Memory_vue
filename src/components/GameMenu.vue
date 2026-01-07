@@ -46,9 +46,18 @@ function start(size) {
     font-size: 50px;
     display: flex;
     justify-content: center;
-    width: 300px;
+    width: 330px;
     top: 200px;
     left: 600px;
-    
+  }
+
+  .scores a{
+    background-color: rgb(196, 232, 193);
+    color: rgb(0, 0, 0);
+  }
+
+  .scores a:hover{
+    background-color: rgb(70, 83, 69);
+    color: rgb(223, 223, 223);
   }
 </style>

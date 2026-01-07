@@ -11,6 +11,7 @@ import GameMenu from '../components/GameMenu.vue'
 
 <style scoped>
   .Title{
+    color: aliceblue;
     font-size: 100px;
     display: flex;
     justify-content: center;

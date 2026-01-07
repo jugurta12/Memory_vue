@@ -49,7 +49,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-// 🔑 clé unique pour le stockage local
+// clé unique pour le stockage local
 const STORAGE_KEY = 'memory-scores'
 
 const scores = ref([])
@@ -113,6 +113,7 @@ onMounted(() => {
   max-width: 800px;
   margin: auto;
   text-align: center;
+  color: white;
 }
 
 .actions {

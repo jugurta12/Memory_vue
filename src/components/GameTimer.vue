@@ -45,6 +45,7 @@ onUnmounted(stop)
   left: 1300px;
   width: 100px;
   text-align: center;
+  color: aliceblue;
 }
 
 </style>
